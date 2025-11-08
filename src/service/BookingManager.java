@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class BookingManager implements IBookable {
+
     private final List<Booking> bookings = new ArrayList<>();
     private final List<Seat> seats = new ArrayList<>();
     private final Scanner sc = new Scanner(System.in);
@@ -12,6 +13,23 @@ public class BookingManager implements IBookable {
     public BookingManager() {
         initializeSeats();
     }
+
+
+    private void initializeSeats() {
+        for (int i = 1; i <= 25; i++) {
+            seats.add(new Seat(i, "Regular Seat", true));
+        }
+        for (int i = 26; i <= 35; i++) {
+            seats.add(new Seat(i, "Window Seat", true));
+        }
+        for (int i = 36; i <= 50; i++) {
+            seats.add(new Seat(i, "Corner Seat", true));
+        }
+        for (int i = 51; i <= 55; i++) {
+            seats.add(new Seat(i, "Meeting Room", true));
+        }
+    }
+
     public void showSeatAvailability() {
         long regular = seats.stream().filter(s -> s.getSeatType().equals("Regular Seat") && s.isAvailable()).count();
         long window = seats.stream().filter(s -> s.getSeatType().equals("Window Seat") && s.isAvailable()).count();
@@ -19,54 +37,51 @@ public class BookingManager implements IBookable {
         long meeting = seats.stream().filter(s -> s.getSeatType().equals("Meeting Room") && s.isAvailable()).count();
 
         System.out.println("\n--- Seat Availability ---");
-        System.out.println(String.format("Regular Seats: %d / 25", regular));
-        System.out.println(String.format("Window Seats:  %d / 10", window));
-        System.out.println(String.format("Corner Seats:  %d / 15", corner));
-        System.out.println(String.format("Meeting Rooms: %d / 5", meeting));
+        System.out.printf("Regular Seats: %d / 25%n", regular);
+        System.out.printf("Window Seats:  %d / 10%n", window);
+        System.out.printf("Corner Seats:  %d / 15%n", corner);
+        System.out.printf("Meeting Rooms: %d / 5%n", meeting);
         System.out.println();
     }
-    private void initializeSeats() {
-        for (int i = 1; i <= 25; i++) {
-            seats.add(new Seat(i, "Regular Seat", true));
-        }
-
-        for (int i = 26; i <= 35; i++) {
-            seats.add(new Seat(i, "Window Seat", true));
-        }
-
-        for (int i = 36; i <= 50; i++) {
-            seats.add(new Seat(i, "Corner Seat", true));
-        }
-
-        for (int i = 51; i <= 55; i++) {
-            seats.add(new Seat(i, "Meeting Room", true));
-        }
-    }
-
     @Override
-    public void bookSeat(String empId, int seatId) {
-        var seatOpt = seats.stream()
-                .filter(s -> s.getSeatId() == seatId && s.isAvailable())
+    public void bookSeat(String empId, int seatTypeChoice) {
+
+        String seatType = switch (seatTypeChoice) {
+            case 1 -> "Regular Seat";
+            case 2 -> "Window Seat";
+            case 3 -> "Corner Seat";
+            case 4 -> "Meeting Room";
+            default -> null;
+        };
+
+        if (seatType == null) {
+            System.out.println("Invalid seat type!");
+            return;
+        }
+        Optional<Seat> seatOpt = seats.stream()
+                .filter(s -> s.getSeatType().equals(seatType) && s.isAvailable())
                 .findFirst();
 
         if (seatOpt.isEmpty()) {
-            System.out.println("Seat not available or invalid ID!");
+            System.out.println("No available " + seatType + "s at the moment!");
             return;
         }
 
-        var seat = seatOpt.get();
+        Seat seat = seatOpt.get();
         seat.setAvailable(false);
 
         System.out.print("Enter employee name: ");
-        var name = sc.next();
-        System.out.print("Enter department: ");
-        var dept = sc.next();
-        System.out.print("Do you need lunch for the day? (Y/N): ");
-        var foodInput = sc.next();
-        var food = foodInput.equalsIgnoreCase("Y") ? FoodOption.REQUIRED : FoodOption.NOT_REQUIRED;
+        String name = sc.next();
 
-        var emp = new Employee(empId, name, dept);
-        var booking = new Booking(
+        System.out.print("Enter department: ");
+        String dept = sc.next();
+
+        System.out.print("Do you need lunch for the day? (Y/N): ");
+        String foodInput = sc.next();
+        FoodOption food = foodInput.equalsIgnoreCase("Y") ? FoodOption.REQUIRED : FoodOption.NOT_REQUIRED;
+
+        Employee emp = new Employee(empId, name, dept);
+        Booking booking = new Booking(
                 UUID.randomUUID().toString(),
                 emp,
                 seat,
@@ -75,20 +90,29 @@ public class BookingManager implements IBookable {
                 food
         );
         bookings.add(booking);
-
-        System.out.println(String.format(
-        	    "\nBooking successful for \"%s\"\nSeat  = %s\nFood = %s\nBooking ID: %s\n\n\" Thanks for Booking. Have a nice Day %s\"",
-        	    emp.getEmpName(), seat.getSeatType(), food, booking.getBookingId(), emp.getEmpName()
-        	));
+        System.out.println("\n====================================");
+        System.out.println("Booking Successful!");
+        System.out.printf("Employee: %s %n", emp.getEmpName());
+        System.out.printf("Seat: %s (Seat ID: %d)%n", seat.getSeatType(), seat.getSeatId());
+        System.out.printf("Food: %s%n", food);
+        System.out.printf("Booking ID: %s%n", booking.getBookingId());
+        System.out.printf("Date: %s%n", booking.getBookingDate());
+        System.out.println("\"Thanks for Booking. Have a nice Day, " + emp.getEmpName() + "!\"");
+        System.out.println("***************************************************");
+        showSeatAvailability();
     }
 
     @Override
     public void cancelBooking(String bookingId) {
-        for (var b : bookings) {
+        Iterator<Booking> iterator = bookings.iterator();
+        while (iterator.hasNext()) {
+            Booking b = iterator.next();
             if (b.getBookingId().equals(bookingId)) {
                 b.getSeat().setAvailable(true);
-                bookings.remove(b);
-                System.out.println(String.format("Booking cancelled for %s", b.getEmployee().getEmpName()));
+                iterator.remove();
+
+                System.out.println("\n❌ Booking cancelled for " + b.getEmployee().getEmpName());
+                showSeatAvailability();
                 return;
             }
         }
@@ -98,30 +122,28 @@ public class BookingManager implements IBookable {
     @Override
     public void showAllBookings() {
         if (bookings.isEmpty()) {
-            System.out.println("No bookings yet!");
+            System.out.println("\nNo bookings yet!");
             return;
         }
 
-        System.out.println("\n--- All Bookings ---");
-        for (var b : bookings) {
-            if (b.getSeat() instanceof Seat seat) {
-                System.out.println(String.format(
-                        "Employee=%s, SeatType=%s, SeatID=%d, Food=%s",
-                        b.getEmployee().getEmpName(),
-                        seat.getSeatType(),
-                        seat.getSeatId(),
-                        b.getFoodOption()
-                ));
-            }
+        System.out.println("\n--- All Current Bookings ---");
+        for (Booking b : bookings) {
+            Seat seat = b.getSeat();
+            System.out.printf("Employee=%s, Dept=%s, SeatType=%s, SeatID=%d, Food=%s, BookingID=%s%n",
+                    b.getEmployee().getEmpName(),
+                    b.getEmployee().getDepartment(),
+                    seat.getSeatType(),
+                    seat.getSeatId(),
+                    b.getFoodOption(),
+                    b.getBookingId()
+            );
         }
     }
 
     public void showAvailableSeats() {
         System.out.println("\n--- Available Seats ---");
-        for (var s : seats) {
-            if (s.isAvailable()) {
-                System.out.println(String.format("Seat ID=%d, Type=%s", s.getSeatId(), s.getSeatType()));
-            }
-        }
+        seats.stream()
+                .filter(Seat::isAvailable)
+                .forEach(s -> System.out.printf("Seat ID=%d, Type=%s%n", s.getSeatId(), s.getSeatType()));
     }
 }
