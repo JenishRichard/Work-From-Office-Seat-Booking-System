@@ -13,7 +13,7 @@ public class BookingManager implements IBookable {
         seats.add(new Seat(1, "Regular Seat", true));
         seats.add(new Seat(2, "Window Seat", true));
         seats.add(new Seat(3, "Corner Seat", true));
-    }
+        seats.add(new Seat(4, "Meeting Room", true));    }
 
     @Override
     public void bookSeat(String empId, int seatId) {
@@ -50,9 +50,11 @@ public class BookingManager implements IBookable {
 
       
         System.out.println(String.format(
-        	    "Booking successful for %s [Seat=%s, Food=%s] (Booking ID: %s)",
-        	    emp.getEmpName(), seat.getSeatType(), food, booking.getBookingId()
+        	    "\nBooking successful for \"%s\"\nSeat  = %s\nFood = %s\nBooking ID: %s\n\n\" Thanks for Booking. Have a nice Day %s\"",
+        	    emp.getEmpName(), seat.getSeatType(), food, booking.getBookingId(), emp.getEmpName()
         	));
+
+
 
     }
 
