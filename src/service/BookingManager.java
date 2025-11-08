@@ -50,9 +50,10 @@ public class BookingManager implements IBookable {
 
       
         System.out.println(String.format(
-                "Booking successful for %s [Seat=%s, Food=%s]",
-                emp.getEmpName(), seat.getSeatType(), food
-        ));
+        	    "Booking successful for %s [Seat=%s, Food=%s] (Booking ID: %s)",
+        	    emp.getEmpName(), seat.getSeatType(), food, booking.getBookingId()
+        	));
+
     }
 
     @Override
