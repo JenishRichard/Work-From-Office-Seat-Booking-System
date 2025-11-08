@@ -1,8 +1,6 @@
 package main;
 
-import java.util.*;
 import java.util.Scanner;
-
 import service.BookingManager;
 
 public class AppLauncher {
@@ -19,13 +17,21 @@ public class AppLauncher {
             System.out.println("4. Exit");
             System.out.print("Enter choice: ");
             choice = sc.nextInt();
+
             switch (choice) {
                 case 1 -> {
+                    manager.showSeatAvailability();
                     System.out.print("Enter Employee ID: ");
                     var empId = sc.next();
-                    System.out.print("Enter Seat ID: ");
-                    var seatId = sc.nextInt();
-                    manager.bookSeat(empId, seatId);
+                    System.out.println("Enter Seat Type From Below ");
+                    System.out.println("1 -> Regular Seat");
+                    System.out.println("2 -> Window Seat");
+                    System.out.println("3 -> Corner Seat");
+                    System.out.println("4 -> Meeting Room");
+                    System.out.print("Seat: ");
+                    var seatTypeChoice = sc.nextInt();
+
+                    manager.bookSeat(empId, seatTypeChoice);
                 }
                 case 2 -> {
                     System.out.print("Enter Booking ID: ");

@@ -10,10 +10,38 @@ public class BookingManager implements IBookable {
     private final Scanner sc = new Scanner(System.in);
 
     public BookingManager() {
-        seats.add(new Seat(1, "Regular Seat", true));
-        seats.add(new Seat(2, "Window Seat", true));
-        seats.add(new Seat(3, "Corner Seat", true));
-        seats.add(new Seat(4, "Meeting Room", true));    }
+        initializeSeats();
+    }
+    public void showSeatAvailability() {
+        long regular = seats.stream().filter(s -> s.getSeatType().equals("Regular Seat") && s.isAvailable()).count();
+        long window = seats.stream().filter(s -> s.getSeatType().equals("Window Seat") && s.isAvailable()).count();
+        long corner = seats.stream().filter(s -> s.getSeatType().equals("Corner Seat") && s.isAvailable()).count();
+        long meeting = seats.stream().filter(s -> s.getSeatType().equals("Meeting Room") && s.isAvailable()).count();
+
+        System.out.println("\n--- Seat Availability ---");
+        System.out.println(String.format("Regular Seats: %d / 25", regular));
+        System.out.println(String.format("Window Seats:  %d / 10", window));
+        System.out.println(String.format("Corner Seats:  %d / 15", corner));
+        System.out.println(String.format("Meeting Rooms: %d / 5", meeting));
+        System.out.println();
+    }
+    private void initializeSeats() {
+        for (int i = 1; i <= 25; i++) {
+            seats.add(new Seat(i, "Regular Seat", true));
+        }
+
+        for (int i = 26; i <= 35; i++) {
+            seats.add(new Seat(i, "Window Seat", true));
+        }
+
+        for (int i = 36; i <= 50; i++) {
+            seats.add(new Seat(i, "Corner Seat", true));
+        }
+
+        for (int i = 51; i <= 55; i++) {
+            seats.add(new Seat(i, "Meeting Room", true));
+        }
+    }
 
     @Override
     public void bookSeat(String empId, int seatId) {
@@ -48,21 +76,16 @@ public class BookingManager implements IBookable {
         );
         bookings.add(booking);
 
-      
         System.out.println(String.format(
         	    "\nBooking successful for \"%s\"\nSeat  = %s\nFood = %s\nBooking ID: %s\n\n\" Thanks for Booking. Have a nice Day %s\"",
         	    emp.getEmpName(), seat.getSeatType(), food, booking.getBookingId(), emp.getEmpName()
         	));
-
-
-
     }
 
     @Override
     public void cancelBooking(String bookingId) {
         for (var b : bookings) {
-            if (b.getBookingId().equals(bookingId)) 
-            {
+            if (b.getBookingId().equals(bookingId)) {
                 b.getSeat().setAvailable(true);
                 bookings.remove(b);
                 System.out.println(String.format("Booking cancelled for %s", b.getEmployee().getEmpName()));
@@ -83,11 +106,21 @@ public class BookingManager implements IBookable {
         for (var b : bookings) {
             if (b.getSeat() instanceof Seat seat) {
                 System.out.println(String.format(
-                        "Employee=%s, Seat=%s, Food=%s",
+                        "Employee=%s, SeatType=%s, SeatID=%d, Food=%s",
                         b.getEmployee().getEmpName(),
                         seat.getSeatType(),
+                        seat.getSeatId(),
                         b.getFoodOption()
                 ));
+            }
+        }
+    }
+
+    public void showAvailableSeats() {
+        System.out.println("\n--- Available Seats ---");
+        for (var s : seats) {
+            if (s.isAvailable()) {
+                System.out.println(String.format("Seat ID=%d, Type=%s", s.getSeatId(), s.getSeatType()));
             }
         }
     }
