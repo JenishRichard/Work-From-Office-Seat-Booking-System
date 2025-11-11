@@ -1,7 +1,7 @@
 package model;
 
 public class Employee {
-	private String empId;
+    private String empId;
     private String empName;
     private String department;
 
@@ -11,13 +11,18 @@ public class Employee {
         this.department = department;
     }
 
-    public String getEmpId() { return empId;}
+    public Employee(Employee other) {
+        this.empId = other.empId;
+        this.empName = other.empName;
+        this.department = other.department;
+    }
+
+    public String getEmpId() { return empId; }
     public String getEmpName() { return empName; }
     public String getDepartment() { return department; }
 
     @Override
     public String toString() {
-    	return empName + " (" + empId + ") – " + department;
+        return empName + " (" + empId + ") – " + department;
     }
-
 }
