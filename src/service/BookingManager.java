@@ -2,7 +2,9 @@ package service;
 
 import model.*;
 import exceptions.BookingNotFoundException;
+
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -10,7 +12,7 @@ public class BookingManager implements IBookable {
     private final List<Booking> bookings = new ArrayList<>();
     private final List<Seat> seats = new ArrayList<>();
     private final Scanner sc = new Scanner(System.in);
-    private final String[] departments = {"IT", "HR", "Finance", "Admin"}; 
+    private final String[] departments = {"IT", "HR", "Finance", "Admin"};
 
     public BookingManager() {
         initializeSeats();
@@ -30,9 +32,7 @@ public class BookingManager implements IBookable {
 
         seats.stream()
                 .filter(Seat::isAvailable)
-                .forEach(s -> 
-                    availability.merge(s.getSeatType(), 1L, Long::sum)
-                );
+                .forEach(s -> availability.merge(s.getSeatType(), 1L, Long::sum));
 
         if (availability.isEmpty()) {
             System.out.println("No seats available!");
@@ -40,10 +40,9 @@ public class BookingManager implements IBookable {
         }
 
         availability.forEach((type, count) ->
-            System.out.printf("Type = %s : %d Seats Available%n", type, count)
+                System.out.printf("Type = %s : %d Seats Available%n", type, count)
         );
     }
-
 
     @Override
     public void bookSeat(String empId, int seatTypeChoice) {
@@ -82,21 +81,34 @@ public class BookingManager implements IBookable {
         FoodOption food = foodInput.equalsIgnoreCase("Y") ? FoodOption.REQUIRED : FoodOption.NOT_REQUIRED;
 
         Employee emp = new Employee(empId, name, dept);
-        Booking booking = new Booking(UUID.randomUUID().toString(), emp, seat, LocalDate.now(), BookingStatus.BOOKED, food);
+        Booking booking = new Booking(
+                UUID.randomUUID().toString(),
+                emp,
+                seat,
+                LocalDate.now(),
+                BookingStatus.BOOKED,
+                food
+        );
         bookings.add(booking);
-
-        System.out.println("\nBooking Successful!\n");
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+        BookingSummary summary = new BookingSummary(
+                emp.getEmpName(),
+                emp.getDepartment(),
+                seat.getSeatType(),
+                booking.getBookingId()
+        );
+        System.out.println("\n" + summary.successLine() + "\n");
         System.out.println("Booking Details :");
         System.out.printf("Employee Name = %s%n", emp.getEmpName());
         System.out.printf("Seat = %s%n", seat.getSeatType());
         System.out.printf("Food = %s%n", food);
+        System.out.printf("Date = %s%n", booking.getBookingDate().format(formatter));
         System.out.printf("Booking ID = %s%n", booking.getBookingId());
         System.out.println("--------------------------------------------------------------------------------------------------");
     }
- 
+
     public void bookSeat(String empId) {
-        bookSeat(empId, 1); 
+        bookSeat(empId, 1);
     }
 
     @Override
@@ -106,6 +118,7 @@ public class BookingManager implements IBookable {
                     .filter(b -> b.getBookingId().equals(bookingId))
                     .findFirst()
                     .orElseThrow(() -> new BookingNotFoundException("Booking not found!"));
+
             booking.getSeat().setAvailable(true);
             bookings.remove(booking);
             System.out.println("Booking cancelled for " + booking.getEmployee().getEmpName());
@@ -120,10 +133,22 @@ public class BookingManager implements IBookable {
             System.out.println("No bookings yet!");
             return;
         }
-        System.out.println("\n--- All Current Bookings ---");
-        bookings.forEach(System.out::println); 
-    }
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+
+        System.out.println("\n--- All Current Bookings ---");
+        for (Booking b : bookings) {
+            System.out.printf("Employee=%s, Department=%s, SeatType=%s, SeatID=%d, Food=%s, Date=%s, BookingID=%s%n",
+                    b.getEmployee().getEmpName(),
+                    b.getEmployee().getDepartment(),
+                    b.getSeat().getSeatType(),
+                    b.getSeat().getSeatId(),
+                    b.getFoodOption(),
+                    b.getBookingDate().format(formatter),
+                    b.getBookingId());
+        }
+        System.out.println("--------------------------------------------------------------------------------------------------");
+    }
 
     public void printBookings(Booking... list) {
         for (Booking b : list) System.out.println(b);

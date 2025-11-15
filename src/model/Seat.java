@@ -1,5 +1,8 @@
 package model;
-
+import model.RegularSeat;
+import model.WindowSeat;
+import model.CornerSeat;
+import model.MeetingRoom;
 public sealed class Seat permits RegularSeat, WindowSeat, CornerSeat, MeetingRoom {
     private int seatId;
     private String seatType;

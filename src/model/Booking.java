@@ -10,6 +10,7 @@ public final class Booking {
     private final BookingStatus status;
     private final FoodOption foodOption;
 
+    
     public Booking(String bookingId, Employee employee, Seat seat,
                    LocalDate bookingDate, BookingStatus status, FoodOption foodOption) {
         this.bookingId = bookingId;
