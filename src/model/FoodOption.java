@@ -1,5 +1,7 @@
 package model;
 
+//Represents whether the employee requires lunch
 public enum FoodOption {
-	REQUIRED, NOT_REQUIRED
+    REQUIRED,
+    NOT_REQUIRED
 }

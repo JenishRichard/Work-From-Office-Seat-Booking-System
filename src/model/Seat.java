@@ -1,15 +1,15 @@
 package model;
-import model.RegularSeat;
-import model.WindowSeat;
-import model.CornerSeat;
-import model.MeetingRoom;
+
+//Sealed base class for all seat types in the system
 public sealed class Seat permits RegularSeat, WindowSeat, CornerSeat, MeetingRoom {
+
     private int seatId;
     private String seatType;
     private boolean available;
 
+//constructor sets seat type
     public Seat(int seatId, String seatType) {
-        this(seatId, seatType, true);  
+        this(seatId, seatType, true);
     }
 
     public Seat(int seatId, String seatType, boolean available) {
