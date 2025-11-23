@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.Arrays;
 
 //BookingManager handles Seat Booking, Cab Booking
 public class BookingManager implements IBookable {
@@ -15,8 +16,23 @@ public class BookingManager implements IBookable {
     private final List<CabBooking> cabBookings = new ArrayList<>();
     private final Scanner sc = new Scanner(System.in);
 
+    //Simple array 
+    private final String[] defaultDepartments = {"IT", "HR", "Finance", "Admin"};
+
+    //Immutable type usage
+    private final OfficeLocation officeLocation = new OfficeLocation("Chennai", "Block A");
+
     public BookingManager() {
         initializeSeats();
+    }
+
+    //Override default interface method and call IBookable.super.showSystemInfo()
+    @Override
+    public void showSystemInfo() {
+        IBookable.super.showSystemInfo(); //super usage for default interface method
+        System.out.println("Office Location: " + officeLocation);
+        System.out.println("Departments: " + String.join(", ", defaultDepartments));
+        System.out.println();
     }
 
     //Creates all seats during application startup
@@ -101,6 +117,16 @@ public class BookingManager implements IBookable {
 
         bookings.add(booking);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+
+        // StringBuilder
+        StringBuilder confirmation = new StringBuilder();
+        confirmation.append("Seat booked for ")
+                    .append(emp.getEmpName())
+                    .append(" (")
+                    .append(emp.getDepartment())
+                    .append(") - ")
+                    .append(seat.getSeatType());
+        System.out.println(confirmation);
 
         System.out.print("Will you work after 6 PM? (Y/N): ");
         String workLate = sc.next();
@@ -232,7 +258,6 @@ public class BookingManager implements IBookable {
             System.out.println("No bookings yet!");
             return;
         }
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 
         System.out.println("\n--- All Current Bookings ---");
@@ -269,8 +294,8 @@ public class BookingManager implements IBookable {
         System.out.println("------------------------------------------------------------");
     }
 
-    //Varargs
+    //Varargs 
     public void printBookings(Booking... list) {
-        for (Booking b : list) System.out.println(b);
+        Arrays.stream(list).forEach(System.out::println); // method reference
     }
 }
